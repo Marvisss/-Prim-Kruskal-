@@ -1,0 +1,90 @@
+#include <stdio.h>
+#pragma warning(disable:4996)
+#define MAXVEX 10
+#define Maxweight 65535//此处是权值极最大值
+#define LENGTH(a) (sizeof(a) / sizeof(a[0]))
+
+typedef char VertexType;
+typedef struct
+{
+	VertexType vexs[MAXVEX];    //存储顶点信息
+	int arc[MAXVEX][MAXVEX];    //邻接矩阵
+	int numVertexes, numEdges;  //点数和边数
+}MGraph;
+
+void createMGraph(MGraph *G)     // 创建图 
+{
+	int i, j;
+	G->numEdges=9;
+	G->numVertexes=7;
+
+	for (i = 0; i < G->numVertexes; i++)    // 初始化图 
+	{
+		for (j = 0; j < G->numVertexes; j++)
+		{
+			if (i == j)
+				G->arc[i][j] = 0;
+			else
+				G->arc[i][j] = G->arc[j][i] = Maxweight;
+		}
+	}
+	G->arc[0][1] = 28;
+	G->arc[0][5] = 10;
+	G->arc[1][2] = 16;
+	G->arc[1][6] = 14;
+	G->arc[2][3] = 12;
+	G->arc[3][6] = 18;
+	G->arc[3][4] = 22;
+	G->arc[4][6] = 24;
+	G->arc[4][5] = 25;
+	//给出实例初始化图存储在邻接矩阵
+	for (i = 0; i < G->numVertexes; i++)
+	{
+		for (j = i; j < G->numVertexes; j++)//注意 这里j的起点是从i开始的
+		{
+			G->arc[j][i] = G->arc[i][j];//因为是无向图 所以顶点具有对称性
+		}
+	}
+
+}
+
+//Prim 算法生成最小生成树 
+void Prim(MGraph G)
+{
+	int min, i, j, k;
+	int lowcost[MAXVEX];   // 权值 
+	int adjvex[MAXVEX];   // 顶点的下标
+	lowcost[0] = 0;       //v0权值为0 
+	adjvex[0] = 0;        // v0第一个加入 
+	for (i = 1; i < G.numVertexes; i++)
+	{
+		lowcost[i] = G.arc[0][i];  // 遍历所有与v0相邻的边
+		adjvex[i] = 0;             // 初始化全部先为 v0 的下标 
+	}
+	for (i = 1; i < G.numVertexes; i++)
+	{
+		min = Maxweight;   // 初始化最小权值为最大的不可能值 
+		j = 1;
+		k = 0;
+		while (j < G.numVertexes)  // 遍历全部顶点 
+		{
+			if (lowcost[j] != 0 && lowcost[j] < min)
+			{
+				min = lowcost[j];
+				k = j;
+			}
+			j++;
+		}
+		lowcost[k] = 0;  // 将当前顶点的权值设置为0
+		printf("(%d, %d)", adjvex[k], k);  // 打印当前顶点边中权值最小的边
+		//邻接矩阵k行逐个遍历全部顶点 
+		for (j = 1; j < G.numVertexes; j++)
+		{
+			if (lowcost[j] != 0 && G.arc[k][j] < lowcost[j])
+			{
+				lowcost[j] = G.arc[k][j];  // 将较小的权值存入 lowcost 相应位置 
+				adjvex[j] = k;   // 将下标为 k 的顶点存入 adjvex 
+			}
+		}
+	}
+}
