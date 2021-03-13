@@ -88,3 +88,10 @@ void Prim(MGraph G)
 		}
 	}
 }
+int main()
+{
+	MGraph G;
+	createMGraph(&G);
+	Prim(G);
+	return 0;
+}
